@@ -1,16 +1,45 @@
 
-# Book Issuing Module
+from database import create_tables, connect_db
+from datetime import date
 
-available_books = 5
+create_tables()
 
-book_id = input("Enter Book ID: ")
+print("\n--- BOOK RETURNING ---")
+
 student_id = input("Enter Student ID: ")
+book_id = input("Enter Book ID: ")
 
-if available_books > 0:
-    print("Book issued successfully!")
-    print("Student ID:", student_id)
-    print("Book ID:", book_id)
-    print("Return within 14 days.")
-    available_books -= 1
+con = connect_db()
+cur = con.cursor()
+
+cur.execute("""
+SELECT issue_id FROM issues
+WHERE student_id = ? AND book_id = ?
+AND status = 'Issued'
+ORDER BY issue_id DESC LIMIT 1
+""", (student_id, book_id))
+
+issue = cur.fetchone()
+
+if issue:
+    return_date = date.today()
+
+    cur.execute("""
+    UPDATE issues
+    SET return_date = ?, status = 'Returned'
+    WHERE issue_id = ?
+    """, (str(return_date), issue[0]))
+
+    cur.execute("""
+    UPDATE books SET quantity = quantity + 1
+    WHERE book_id = ?
+    """, (book_id,))
+
+    con.commit()
+    print("\nBook returned successfully!")
+    print("Return Date:", return_date)
+
 else:
-    print("Book is not available!")
+    print("No active issue record found!")
+
+con.close()
