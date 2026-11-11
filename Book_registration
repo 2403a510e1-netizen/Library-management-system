@@ -1,23 +1,30 @@
 
-# Book Registration Module
+from database import create_tables, connect_db
 
-books = []
+create_tables()
 
-def register_book():
-    book_id = input("Enter Book ID: ")
-    book_name = input("Enter Book Name: ")
-    author = input("Enter Author Name: ")
-    quantity = int(input("Enter Quantity: "))
+print("\n--- BOOK SEARCHING ---")
 
-    book = {
-        "id": book_id,
-        "name": book_name,
-        "author": author,
-        "quantity": quantity
-    }
+search = input("Enter Book ID or Book Name: ")
 
-    books.append(book)
+con = connect_db()
+cur = con.cursor()
 
-    print("Book registered successfully!")
+cur.execute("""
+SELECT * FROM books
+WHERE book_id = ? OR book_name LIKE ?
+""", (search, "%" + search + "%"))
 
-register_book()
+books = cur.fetchall()
+
+if books:
+    for book in books:
+        print("\nBook ID:", book[0])
+        print("Book Name:", book[1])
+        print("Author:", book[2])
+        print("Publisher:", book[3])
+        print("Available Quantity:", book[4])
+else:
+    print("Book not found!")
+
+con.close()
