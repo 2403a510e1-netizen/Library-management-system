@@ -1,0 +1,24 @@
+
+# Book Searching Module
+
+books = [
+    {"id": "101", "name": "Python",
+     "author": "Guido", "quantity": 5},
+    {"id": "102", "name": "Java",
+     "author": "James", "quantity": 3}
+]
+
+search_id = input("Enter Book ID to search: ")
+
+found = False
+
+for book in books:
+    if book["id"] == search_id:
+        print("Book Found!")
+        print("Book Name:", book["name"])
+        print("Author:", book["author"])
+        print("Available Copies:", book["quantity"])
+        found = True
+
+if not found:
+    print("Book not found!")
