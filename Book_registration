@@ -1,23 +1,29 @@
 
-# Book Registration Module
+import sqlite3
+from database import create_tables, connect_db
 
-books = []
+create_tables()
 
-def register_book():
-    book_id = input("Enter Book ID: ")
-    book_name = input("Enter Book Name: ")
-    author = input("Enter Author Name: ")
-    quantity = int(input("Enter Quantity: "))
+print("\n--- BOOK REGISTRATION ---")
 
-    book = {
-        "id": book_id,
-        "name": book_name,
-        "author": author,
-        "quantity": quantity
-    }
+book_id = input("Enter Book ID: ")
+book_name = input("Enter Book Name: ")
+author = input("Enter Author Name: ")
+publisher = input("Enter Publisher: ")
+quantity = int(input("Enter Quantity: "))
 
-    books.append(book)
+con = connect_db()
+cur = con.cursor()
 
-    print("Book registered successfully!")
+try:
+    cur.execute("""
+    INSERT INTO books VALUES (?, ?, ?, ?, ?)
+    """, (book_id, book_name, author, publisher, quantity))
 
-register_book()
+    con.commit()
+    print("\nBook registered successfully!")
+
+except sqlite3.IntegrityError:
+    print("\nBook ID already exists!")
+
+con.close()
