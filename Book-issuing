@@ -1,16 +1,46 @@
 
-# Book Issuing Module
+from database import create_tables, connect_db
+from datetime import date, timedelta
 
-available_books = 5
+create_tables()
 
-book_id = input("Enter Book ID: ")
+print("\n--- BOOK ISSUING ---")
+
 student_id = input("Enter Student ID: ")
+book_id = input("Enter Book ID: ")
 
-if available_books > 0:
-    print("Book issued successfully!")
-    print("Student ID:", student_id)
-    print("Book ID:", book_id)
-    print("Return within 14 days.")
-    available_books -= 1
+issue_date = date.today()
+due_date = issue_date + timedelta(days=14)
+
+con = connect_db()
+cur = con.cursor()
+
+cur.execute(
+    "SELECT quantity FROM books WHERE book_id = ?",
+    (book_id,)
+)
+
+book = cur.fetchone()
+
+if book and book[0] > 0:
+    cur.execute("""
+    INSERT INTO issues
+    (student_id, book_id, issue_date, due_date)
+    VALUES (?, ?, ?, ?)
+    """, (student_id, book_id, str(issue_date), str(due_date)))
+
+    cur.execute("""
+    UPDATE books SET quantity = quantity - 1
+    WHERE book_id = ?
+    """, (book_id,))
+
+    con.commit()
+
+    print("\nBook issued successfully!")
+    print("Issue Date:", issue_date)
+    print("Due Date:", due_date)
+
 else:
-    print("Book is not available!")
+    print("Book not available!")
+
+con.close()
