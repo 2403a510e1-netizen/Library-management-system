@@ -1,0 +1,12 @@
+
+# Fine Calculation Module
+
+due_days = int(input("Enter number of overdue days: "))
+
+fine_per_day = 5
+
+if due_days > 0:
+    fine = due_days * fine_per_day
+    print("Total Fine: Rs.", fine)
+else:
+    print("No fine. Book returned on time.")
