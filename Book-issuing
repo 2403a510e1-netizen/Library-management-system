@@ -1,16 +1,50 @@
 
-# Book Issuing Module
+from database import create_tables, connect_db
+from datetime import date
 
-available_books = 5
+create_tables()
 
-book_id = input("Enter Book ID: ")
+print("\n--- FINE CALCULATION ---")
+
 student_id = input("Enter Student ID: ")
+book_id = input("Enter Book ID: ")
 
-if available_books > 0:
-    print("Book issued successfully!")
-    print("Student ID:", student_id)
-    print("Book ID:", book_id)
-    print("Return within 14 days.")
-    available_books -= 1
+con = connect_db()
+cur = con.cursor()
+
+cur.execute("""
+SELECT issue_id, due_date, return_date
+FROM issues
+WHERE student_id = ? AND book_id = ?
+ORDER BY issue_id DESC LIMIT 1
+""", (student_id, book_id))
+
+record = cur.fetchone()
+
+if record:
+    issue_id, due_date, return_date = record
+
+    if return_date:
+        actual_date = date.fromisoformat(return_date)
+    else:
+        actual_date = date.today()
+
+    due = date.fromisoformat(due_date)
+    overdue_days = max(0, (actual_date - due).days)
+
+    fine = overdue_days * 5
+
+    cur.execute("""
+    UPDATE issues SET fine = ?
+    WHERE issue_id = ?
+    """, (fine, issue_id))
+
+    con.commit()
+
+    print("Overdue Days:", overdue_days)
+    print("Fine Amount: Rs.", fine)
+
 else:
-    print("Book is not available!")
+    print("Issue record not found!")
+
+con.close()
