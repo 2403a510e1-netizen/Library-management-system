@@ -1,0 +1,10 @@
+
+# Book Returning Module
+
+book_id = input("Enter Book ID: ")
+student_id = input("Enter Student ID: ")
+
+print("Book returned successfully!")
+print("Book ID:", book_id)
+print("Student ID:", student_id)
+print("Book availability updated.")
