@@ -1,0 +1,16 @@
+
+# Book Issuing Module
+
+available_books = 5
+
+book_id = input("Enter Book ID: ")
+student_id = input("Enter Student ID: ")
+
+if available_books > 0:
+    print("Book issued successfully!")
+    print("Student ID:", student_id)
+    print("Book ID:", book_id)
+    print("Return within 14 days.")
+    available_books -= 1
+else:
+    print("Book is not available!")
